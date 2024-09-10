@@ -1,0 +1,91 @@
+using System;
+using System.Collections.Generic;
+
+// Interfaz Flyweight
+public interface ITreeType
+{
+    void Draw(int x, int y);
+}
+
+// Clase concreta Flyweight
+public class TreeType : ITreeType
+{
+    private string name;
+    private string color;
+    private string otherTreeData;
+
+    public TreeType(string name, string color, string otherTreeData)
+    {
+        this.name = name;
+        this.color = color;
+        this.otherTreeData = otherTreeData;
+    }
+
+    public void Draw(int x, int y)
+    {
+        Console.WriteLine($"Drawing {name} tree of color {color} at position ({x}, {y}). Data: {otherTreeData}");
+    }
+}
+
+// Factory para TreeType
+public class TreeTypeFactory
+{
+    private Dictionary<string, ITreeType> treeTypes = new Dictionary<string, ITreeType>();
+
+    public ITreeType GetTreeType(string name, string color, string otherTreeData)
+    {
+        string key = $"{name}_{color}_{otherTreeData}";
+
+        if (!treeTypes.ContainsKey(key))
+        {
+            treeTypes[key] = new TreeType(name, color, otherTreeData);
+        }
+
+        return treeTypes[key];
+    }
+}
+
+// Clase Tree que usa el Flyweight
+public class Tree
+{
+    private int x;
+    private int y;
+    private ITreeType type;
+
+    public Tree(int x, int y, ITreeType type)
+    {
+        this.x = x;
+        this.y = y;
+        this.type = type;
+    }
+
+    public void Draw()
+    {
+        type.Draw(x, y);
+    }
+}
+
+public class Program
+{
+    public static void Main()
+    {
+        TreeTypeFactory treeTypeFactory = new TreeTypeFactory();
+
+        // Crear varios árboles con el mismo tipo compartido
+        ITreeType oakType = treeTypeFactory.GetTreeType("Oak", "Green", "Tall and strong");
+        ITreeType pineType = treeTypeFactory.GetTreeType("Pine", "DarkGreen", "Evergreen and slim");
+
+        List<Tree> trees = new List<Tree>
+        {
+            new Tree(10, 20, oakType),
+            new Tree(30, 40, oakType),
+            new Tree(50, 60, pineType),
+            new Tree(70, 80, pineType)
+        };
+
+        foreach (Tree tree in trees)
+        {
+            tree.Draw();
+        }
+    }
+}
